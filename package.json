@@ -1,0 +1,10 @@
+{
+  "name": "geo2latex-lite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo web: trace hình học phẳng cơ bản và xuất LaTeX TikZ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

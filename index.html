@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Geo2LaTeX Lite – Chuyển hình phẳng cơ bản sang LaTeX (TikZ)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">G2L</div>
+      <div>
+        <div class="title">Geo2LaTeX Lite</div>
+        <div class="subtitle">Chuyển hình học phẳng cơ bản sang LaTeX (TikZ) – bản demo</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="btnCopy" class="btn primary">Copy LaTeX</button>
+      <button id="btnDownload" class="btn">Tải .tex</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <div class="stage-toolbar">
+        <div class="group">
+          <label class="file">
+            <input id="bgFile" type="file" accept="image/*" />
+            <span class="btn">Tải ảnh nền</span>
+          </label>
+          <button id="btnClearBg" class="btn subtle">Xoá ảnh nền</button>
+        </div>
+
+        <div class="group">
+          <label class="label">Độ mờ ảnh</label>
+          <input id="bgOpacity" type="range" min="0" max="1" step="0.05" value="0.65" />
+          <span id="bgOpacityVal" class="pill">0.65</span>
+        </div>
+
+        <div class="group">
+          <label class="label">Chế độ</label>
+          <select id="modeSelect" class="select">
+            <option value="flat" selected>Hình phẳng (Lite)</option>
+            <option value="real" disabled>Hình thực tế / ảnh chụp (PRO)</option>
+            <option value="graph" disabled>Đồ thị / biểu đồ (PRO)</option>
+            <option value="3d" disabled>Hình 3D (PRO)</option>
+            <option value="mixed" disabled>Hỗn hợp, nhiều đối tượng (PRO)</option>
+          </select>
+        </div>
+
+        <div class="group">
+          <label class="check">
+            <input id="snapGrid" type="checkbox" />
+            <span>Snap lưới</span>
+          </label>
+          <label class="check">
+            <input id="showPoints" type="checkbox" checked />
+            <span>Hiện điểm</span>
+          </label>
+          <label class="check">
+            <input id="showLabels" type="checkbox" checked />
+            <span>Hiện nhãn</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="canvas" width="980" height="640"></canvas>
+        <div class="hint" id="hint"></div>
+      </div>
+
+      <div class="statusbar">
+        <div id="statusLeft">Tool: <b id="toolName">Point</b> • Click để thêm điểm</div>
+        <div id="statusRight">
+          <button id="btnUndo" class="btn subtle">Undo</button>
+          <button id="btnReset" class="btn danger subtle">Xoá hết</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card">
+        <div class="card-title">Công cụ</div>
+        <div class="tools">
+          <button class="tool active" data-tool="point">Điểm</button>
+          <button class="tool" data-tool="segment">Đoạn thẳng</button>
+          <button class="tool" data-tool="polygon">Đa giác</button>
+          <button class="tool" data-tool="circle">Đường tròn</button>
+          <button class="tool" data-tool="angle">Góc</button>
+          <button class="tool" data-tool="label">Đổi nhãn</button>
+          <button id="btnFinishPoly" class="btn subtle wide" disabled>Hoàn tất đa giác</button>
+        </div>
+
+        <div class="pro-wrap">
+          <div class="pro-title">Công cụ tự động (đã khoá) – bản nâng cấp</div>
+          <div class="pro-tools">
+            <button class="tool locked" data-locked="1" data-feature="auto-segment">Tự nhận diện đoạn thẳng</button>
+            <button class="tool locked" data-locked="1" data-feature="auto-ellipse">Tự nhận diện elip</button>
+            <button class="tool locked" data-locked="1" data-feature="auto-circle">Tự nhận diện đường tròn</button>
+            <button class="tool locked" data-locked="1" data-feature="auto-polygon">Tự nhận diện đa giác</button>
+            <button class="tool locked" data-locked="1" data-feature="auto-angle">Tự nhận diện góc</button>
+            <button class="tool locked" data-locked="1" data-feature="auto-label">Tự nhận diện nhãn/điểm</button>
+            <button class="tool locked" data-locked="1" data-feature="auto-edit">Tự chỉnh sửa (làm sạch) hình</button>
+            <button class="tool locked" data-locked="1" data-feature="latex-fix">Tự chỉnh sửa LaTeX</button>
+          </div>
+          <div class="pro-note">
+            Các nút này thuộc <b>bản nâng cấp</b>. Muốn dùng thì liên hệ <b>Zalo: 0377733703</b>.
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="form">
+          <label class="label">Khung TikZ</label>
+          <div class="row">
+            <div class="field">
+              <label>Chiều rộng (đơn vị TikZ)</label>
+              <input id="tikzWidth" type="number" min="4" max="30" step="1" value="10" />
+            </div>
+            <div class="field">
+              <label>Độ dày nét</label>
+              <input id="lineWidth" type="number" min="0.2" max="2.5" step="0.1" value="0.8" />
+            </div>
+          </div>
+
+          <label class="label">Gợi ý</label>
+          <ul class="tips">
+            <li><b>Ảnh nền</b> chỉ để bạn “trace” cho chuẩn. App không tự nhận dạng.</li>
+            <li><b>Đa giác</b>: click nhiều điểm, bấm “Hoàn tất đa giác”.</li>
+            <li><b>Góc</b>: chọn 3 điểm theo thứ tự A–B–C (góc tại B).</li>
+            <li><b>Đổi nhãn</b>: click điểm rồi nhập nhãn mới.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">LaTeX (TikZ)</div>
+        <textarea id="latexOut" spellcheck="false"></textarea>
+        <div class="small-actions">
+          <button id="btnSelectAll" class="btn subtle">Chọn tất cả</button>
+          <button id="btnPretty" class="btn subtle">Định dạng</button>
+        </div>
+      </div>
+
+      <div class="card upgrade">
+        <div class="card-title">Liên hệ & Nâng cấp</div>
+        <div class="upgrade-text">
+          <div class="badge">Zalo: <b>0377733703</b></div>
+          <p>
+            <b>Bản Lite</b> chỉ làm tốt các <b>hình đơn giản</b> (hình học phẳng cơ bản) và thao tác theo kiểu “trace”.
+            Muốn <b>phức tạp</b> và <b>chính xác</b> hơn (tự động nhận diện nhiều dạng hình, ít sai hơn) thì nên nâng cấp.
+          </p>
+          <p>
+            Có nhận <b>viết công cụ theo yêu cầu</b>. Cam kết <b>làm được</b> mới nhận tiền.
+          </p>
+          <p>
+            Muốn mua <b>bản cải tiến</b> của dự án để có thể chuyển đổi hầu như <b>tất cả hình</b>
+            (tự động nhận dạng tốt hơn, hỗ trợ nhiều dạng bài hơn) thì liên hệ Zalo ở trên.
+          </p>
+                  </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Cách chạy</div>
+        <ol class="tips">
+          <li>Mở file <code>index.html</code> bằng Chrome/Edge.</li>
+          <li>Hoặc chạy server tĩnh (tuỳ chọn): <code>node server.js</code></li>
+        </ol>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span>Geo2LaTeX Lite • Demo hình học phẳng • Zalo: <b>0377733703</b></span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
